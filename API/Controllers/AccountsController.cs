@@ -75,7 +75,7 @@ namespace API.Controllers
         [HttpPost("SignInGoogle")]
         public async Task<IActionResult> SignInGoogle([FromBody] ExternalAuthDto request)
         {
-            var result = await _accountRepository.VerifyGoogleToken(request);
+            var result = await _accountRepository.GoogleLogin(request);
             return Ok(result);
         }
 

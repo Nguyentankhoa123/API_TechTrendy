@@ -251,14 +251,32 @@ namespace API.Repository.Implement
             return userAddressDto;
         }
 
-        public async Task<string> VerifyGoogleToken(ExternalAuthDto externalAuth)
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth)
         {
-            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            try
             {
-                Audience = new List<string>() { _configuration["Google:ClientId"] }
-            };
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string>() { _configuration["Google:ClientId"] }
+                };
+                var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
+                return payload;
+            }
+            catch (Exception ex)
+            {
+                //log an exception
+                throw new Exception(ex.Message);
+            }
+        }
 
-            var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
+        public async Task<TokenObjectResponse> GoogleLogin(ExternalAuthDto externalAuth)
+        {
+            var response = new TokenObjectResponse();
+            var payload = await VerifyGoogleToken(externalAuth);
+            if (payload == null)
+            {
+                throw new BadRequestException("Invalid External Authentication.");
+            };
 
             var info = new UserLoginInfo(externalAuth.Provider, payload.Subject, externalAuth.Provider);
 
@@ -266,39 +284,53 @@ namespace API.Repository.Implement
 
             if (user == null)
             {
-                var newUser = new ApplicationUser
+                user = await _userManager.FindByEmailAsync(payload.Email);
+                if (user == null)
                 {
-                    UserName = payload.Name,
-                    Email = payload.Email,
-                    // Add additional fields if needed
-                };
-
-                var result = await _userManager.CreateAsync(newUser);
-                if (!result.Succeeded)
-                {
-                    throw new BadRequestException("Failed to create new user.");
+                    user = new ApplicationUser
+                    {
+                        Email = payload.Email,
+                        UserName = payload.Email,
+                        FirstName = payload.GivenName,
+                        LastName = payload.FamilyName
+                    };
+                    await _userManager.CreateAsync(user);
+                    await _userManager.AddToRoleAsync(user, "Customer"); // Add user to "Customer" role
+                    await _userManager.AddLoginAsync(user, info);
                 }
-
-                await _userManager.AddToRoleAsync(user, "Viewer");
-                await _userManager.AddLoginAsync(user, info);
+                else
+                {
+                    await _userManager.AddLoginAsync(user, info);
+                }
             }
 
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var authClaims = new List<Claim>
+            if (user == null)
+            {
+                throw new BadRequestException("Invalid External Authentication.");
+            }
+
+            // Create a list of claims for the user
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, "Customer") // Add "Customer" role claim
             };
 
-            foreach (var role in userRoles)
+            response.StatusCode = ResponseCode.OK;
+            response.Message = "Success";
+            response.Data = new TokenResponse
             {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
+                AccessToken = GenerateToken(claims),
+                RefreshToken = GenerateRefreshToken()
+            };
 
-            var token = GenerateToken(authClaims);
+            var _RefreshTokenValidityInDays = Convert.ToInt64(_configuration["JWT:RefreshTokenValidityInDays"]);
+            user.RefreshToken = response.Data.RefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_RefreshTokenValidityInDays);
+            await _userManager.UpdateAsync(user);
 
-            return token;
+            return response;
         }
     }
 }
