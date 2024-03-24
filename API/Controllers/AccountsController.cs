@@ -1,4 +1,5 @@
 ﻿using API.Helpers;
+using API.Model.Dtos.ExternalAuthDto;
 using API.Model.Dtos.User;
 using API.Model.Entity;
 using API.Repositories;
@@ -71,6 +72,12 @@ namespace API.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpPost("SignInGoogle")]
+        public async Task<IActionResult> SignInGoogle([FromBody] ExternalAuthDto request)
+        {
+            var result = await _accountRepository.VerifyGoogleToken(request);
+            return Ok(result);
+        }
 
         [HttpGet("SendEmail")]
 

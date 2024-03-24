@@ -1,4 +1,5 @@
-﻿using API.Model.Dtos.User;
+﻿using API.Model.Dtos.ExternalAuthDto;
+using API.Model.Dtos.User;
 using Microsoft.AspNetCore.Identity;
 
 namespace API.Repositories
@@ -16,5 +17,7 @@ namespace API.Repositories
         Task<UserAddressDto> UpdateUserAddressAsync(UserAddressDto userAddressDto, string userId);
 
         Task<UserAddressDto> GetUserAddressAsync(string userId);
+
+        Task<string> VerifyGoogleToken(ExternalAuthDto externalAuth);
     }
 }

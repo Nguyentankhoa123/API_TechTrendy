@@ -1,10 +1,12 @@
 ﻿using API.Data;
+using API.Model.Dtos.ExternalAuthDto;
 using API.Model.Dtos.User;
 using API.Model.Entity;
 using API.Repositories;
 using API.Services.Exceptions;
 using API.Shared.Enums;
 using AutoMapper;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -247,6 +249,56 @@ namespace API.Repository.Implement
             var userAddressDto = _mapper.Map<UserAddressDto>(existingAddress);
 
             return userAddressDto;
+        }
+
+        public async Task<string> VerifyGoogleToken(ExternalAuthDto externalAuth)
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string>() { _configuration["Google:ClientId"] }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
+
+            var info = new UserLoginInfo(externalAuth.Provider, payload.Subject, externalAuth.Provider);
+
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+
+            if (user == null)
+            {
+                var newUser = new ApplicationUser
+                {
+                    UserName = payload.Name,
+                    Email = payload.Email,
+                    // Add additional fields if needed
+                };
+
+                var result = await _userManager.CreateAsync(newUser);
+                if (!result.Succeeded)
+                {
+                    throw new BadRequestException("Failed to create new user.");
+                }
+
+                await _userManager.AddToRoleAsync(user, "Viewer");
+                await _userManager.AddLoginAsync(user, info);
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+
+            foreach (var role in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var token = GenerateToken(authClaims);
+
+            return token;
         }
     }
 }
