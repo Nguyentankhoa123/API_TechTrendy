@@ -10,6 +10,7 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -323,6 +324,135 @@ namespace API.Repository.Implement
             {
                 AccessToken = GenerateToken(claims),
                 RefreshToken = GenerateRefreshToken()
+            };
+
+            var _RefreshTokenValidityInDays = Convert.ToInt64(_configuration["JWT:RefreshTokenValidityInDays"]);
+            user.RefreshToken = response.Data.RefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_RefreshTokenValidityInDays);
+            await _userManager.UpdateAsync(user);
+
+            return response;
+        }
+
+        public async Task<FacebookUserData> VerifyFacebookToken(ExternalAuthDto externalAuth)
+        {
+            //var appAccessToken = _configuration["Facebook:AppId"] + "|" + _configuration["Facebook:AppSecret"];
+
+            //// Create HttpClient and set up parameters
+            //using (var client = new HttpClient())
+            //{
+            //    var uri = $"https://graph.facebook.com/debug_token?input_token={externalAuth.IdToken}&access_token={appAccessToken}";
+
+            //    // Send request to Facebook and get the response
+            //    HttpResponseMessage response = await client.GetAsync(uri);
+
+            //    // Ensure we have a successful response
+            //    if (response.IsSuccessStatusCode)
+            //    {
+            //        var jsonContent = await response.Content.ReadAsStringAsync();
+
+            //        var result = JsonConvert.DeserializeObject<dynamic>(jsonContent);
+
+            //        if (result.data.app_id == _configuration["Facebook:AppId"])
+            //        {
+            //            var userUri = $"https://graph.facebook.com/v13.0/me?fields=id,name,email,first_name,last_name&access_token={externalAuth.IdToken}";
+            //            HttpResponseMessage userResponse = await client.GetAsync(userUri);
+
+            //            if (userResponse.IsSuccessStatusCode)
+            //            {
+            //                var userJsonContent = await userResponse.Content.ReadAsStringAsync();
+            //                var fbUserData = JsonConvert.DeserializeObject<FacebookUserData>(userJsonContent);
+
+            //                return fbUserData;
+            //            }
+            //        }
+            //    }
+            //}
+
+            //throw new BadRequestException("Bị lỗi rồi bạn ơi");
+
+            var appAccessToken = $"{_configuration["Facebook:AppId"]}|{_configuration["Facebook:AppSecret"]}";
+            var userAccessToken = externalAuth.IdToken;
+            var validationUri = $"https://graph.facebook.com/debug_token?input_token={userAccessToken}&access_token={appAccessToken}";
+
+            using var client = new HttpClient();
+            var validationResponse = await client.GetAsync(validationUri);
+
+            if (validationResponse.IsSuccessStatusCode)
+            {
+                var validationContent = await validationResponse.Content.ReadAsStringAsync();
+                var validationResult = JsonConvert.DeserializeObject<dynamic>(validationContent);
+
+                if (validationResult.data.app_id == _configuration["Facebook:AppId"])
+                {
+                    var userUri = $"https://graph.facebook.com/v13.0/me?fields=id,name,email,first_name,last_name&access_token={userAccessToken}";
+                    var userResponse = await client.GetAsync(userUri);
+
+                    if (userResponse.IsSuccessStatusCode)
+                    {
+                        var userContent = await userResponse.Content.ReadAsStringAsync();
+                        var fbUserData = JsonConvert.DeserializeObject<FacebookUserData>(userContent);
+
+                        return fbUserData;
+                    }
+                }
+            }
+
+            throw new BadRequestException("Failed to fetch Facebook user data.");
+
+        }
+
+
+
+        public async Task<TokenObjectResponse> FacebookLogin(ExternalAuthDto externalAuth)
+        {
+            var response = new TokenObjectResponse();
+
+            // Verify Facebook token
+            var fbUserData = await VerifyFacebookToken(externalAuth);
+            if (fbUserData == null)
+            {
+                throw new BadRequestException("Invalid Facebook access token.");
+            }
+
+            // Find user by email (assuming email is unique)
+            var user = await _userManager.FindByEmailAsync(fbUserData.Email);
+            if (user != null)
+            {
+                throw new BadRequestException("Email đã được tạo rồi bạn ơi");
+            }
+            // Create user if not found
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    Email = fbUserData.Email,
+                    UserName = fbUserData.Name,
+                    FirstName = fbUserData.First_Name,
+                    LastName = fbUserData.Last_Name
+                };
+                await _userManager.CreateAsync(user);
+                await _userManager.AddToRoleAsync(user, "Customer"); // Add user to "Customer" role
+            }
+
+            // Associate Facebook login with the user (assuming user already exists)
+            var info = new UserLoginInfo(externalAuth.Provider, fbUserData.Id, externalAuth.Provider);
+            await _userManager.AddLoginAsync(user, info);
+
+            // Generate authentication token (replace with your token generation logic)
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Role, "Customer") // Add "Customer" role claim
+            };
+
+            response.StatusCode = ResponseCode.OK;
+            response.Message = "Success";
+            response.Data = new TokenResponse
+            {
+                AccessToken = GenerateToken(claims), // Replace with your JWT generation logic
+                RefreshToken = GenerateRefreshToken() // Replace with your refresh token generation logic
             };
 
             var _RefreshTokenValidityInDays = Convert.ToInt64(_configuration["JWT:RefreshTokenValidityInDays"]);

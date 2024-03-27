@@ -22,5 +22,10 @@ namespace API.Repositories
         Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth);
 
         Task<TokenObjectResponse> GoogleLogin(ExternalAuthDto externalAuth);
+
+        Task<FacebookUserData> VerifyFacebookToken(ExternalAuthDto externalAuth);
+        //Task<dynamic> VerifyFacebookToken(ExternalAuthDto externalAuth);
+
+        Task<TokenObjectResponse> FacebookLogin(ExternalAuthDto externalAuth);
     }
 }

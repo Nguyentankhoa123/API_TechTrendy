@@ -79,6 +79,13 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("SignInFacebook")]
+        public async Task<IActionResult> SignInFacebook([FromBody] ExternalAuthDto request)
+        {
+            var result = await _accountRepository.FacebookLogin(request);
+            return Ok(result);
+        }
+
         [HttpGet("SendEmail")]
 
         public IActionResult TestEmail()
