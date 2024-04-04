@@ -4,7 +4,6 @@ using API.Model.Entity;
 using API.Repository;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -22,36 +21,35 @@ namespace API.Controllers
             _mapper = mapper;
             _tabletRepository = tabletRepository;
         }
-
+        /// <summary>
+        /// Get all tablets
+        /// </summary>
+        /// <returns></returns>
         // GET: api/Tablets
         [HttpGet]
-        public async Task<IActionResult> GetTablets()
+        public async Task<IActionResult> GetTablets([FromQuery] int pageNumber = 1, int pageSize = 5)
         {
-            var tablets = await _storeContext.Products.OfType<Tablet>()
-                .Include(p => p.Brand)
-                .Include(p => p.Category)
-                .ToListAsync();
-
-            return Ok(tablets);
+            var result = await _tabletRepository.GetAsync(pageNumber, pageSize);
+            return Ok(result);
         }
-
+        /// <summary>
+        /// Get a tablet by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         //GET: api/Tablets/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Tablet>> GetTablet(int id)
         {
-            var tablet = await _storeContext.Tablets
-                .Include(t => t.Category)
-                .Include(t => t.Brand)
-                .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (tablet == null)
-            {
-                return NotFound();
-            }
-
-            return tablet;
+            var result = await _tabletRepository.GetIdAsync(id);
+            return Ok(result);
         }
-
+        /// <summary>
+        /// Update tablet by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         // PUT: api/Tablets/5
         [HttpPut("{id}")]
         //[Authorize(Roles = Roles.Admin)]
@@ -60,7 +58,13 @@ namespace API.Controllers
             var result = await _tabletRepository.UpdateAsync(id, request);
             return Ok(result);
         }
-
+        /// <summary>
+        /// Create a new tablet
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="brandId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         // POST: api/Tablets
         [HttpPost]
         //[Authorize(Roles = Roles.Admin)]
@@ -70,16 +74,27 @@ namespace API.Controllers
 
             var result = await _tabletRepository.CreateAsync(categoryId, brandId, tablet);
 
-            return CreatedAtAction("GetTablet", new { id = tablet.Id }, result);
+            return CreatedAtAction(nameof(GetTablet), new { id = tablet.Id }, result);
         }
-
+        /// <summary>
+        /// Search for tablet
+        /// </summary>
+        /// <param name="brandQuery"></param>
+        /// <param name="priceSortOrder"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         [HttpGet("search-tablets")]
-        public async Task<IActionResult> GetLaptops([FromQuery] string? brandQuery, string? priceSortOrder, int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetTablets([FromQuery] string? brandQuery, string? priceSortOrder, int pageNumber = 1, int pageSize = 10)
         {
             var result = await _tabletRepository.SearchAsync(brandQuery, priceSortOrder, pageNumber, pageSize);
             return Ok(result);
         }
-
+        /// <summary>
+        /// Delete tablet by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE: api/Tablets/5
         [HttpDelete("{id}")]
         //[Authorize(Roles = Roles.Admin)]

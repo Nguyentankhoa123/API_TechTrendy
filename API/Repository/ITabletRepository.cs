@@ -5,7 +5,7 @@ namespace API.Repository
 {
     public interface ITabletRepository
     {
-        Task<TabletListObjectResponse> GetAsync();
+        Task<TabletListObjectResponse> GetAsync(int pageNumber, int pageSize);
 
         Task<TabletObjectResponse> GetIdAsync(int id);
         Task<TabletObjectResponse> CreateAsync(int categoryId, int brandId, Tablet tablet);

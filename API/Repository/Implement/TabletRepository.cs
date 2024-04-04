@@ -74,11 +74,13 @@ namespace API.Repository.Implement
             return response;
         }
 
-        public async Task<TabletListObjectResponse> GetAsync()
+        public async Task<TabletListObjectResponse> GetAsync(int pageNumber, int pageSize)
         {
             var tablets = await _storeContext.Products.OfType<Tablet>()
                 .Include(t => t.Brand)
                 .Include(t => t.Category)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             var tabletResponses = _mapper.Map<List<TabletResponse>>(tablets);
