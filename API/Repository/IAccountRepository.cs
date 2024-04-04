@@ -13,18 +13,17 @@ namespace API.Repositories
 
         Task<TokenObjectResponse> GetRefreshTokenAsync(RefreshTokenRequest request);
 
-        Task<UserAddressDto> AddUserAddressAsync(UserAddressDto userAddressDto, string userId);
+        Task<UserAddressObjectResponse> AddUserAddressAsync(UserAddressRequest request, string userId);
 
-        Task<UserAddressDto> UpdateUserAddressAsync(UserAddressDto userAddressDto, string userId);
+        Task<UserAddressObjectResponse> UpdateUserAddressAsync(UserAddressRequest request, string userId);
 
-        Task<UserAddressDto> GetUserAddressAsync(string userId);
+        Task<UserAddressObjectResponse> GetUserAddressAsync(string userId);
 
         Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth);
 
         Task<TokenObjectResponse> GoogleLogin(ExternalAuthDto externalAuth);
 
         Task<FacebookUserData> VerifyFacebookToken(ExternalAuthDto externalAuth);
-        //Task<dynamic> VerifyFacebookToken(ExternalAuthDto externalAuth);
 
         Task<TokenObjectResponse> FacebookLogin(ExternalAuthDto externalAuth);
     }

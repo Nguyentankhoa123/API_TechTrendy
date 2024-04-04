@@ -56,6 +56,9 @@ namespace API.Repository.Implement
             var authClaims = new List<Claim>
             {
                new Claim(ClaimTypes.Name, user.UserName),
+               new Claim(ClaimTypes.NameIdentifier, user.Id),
+               new Claim(ClaimTypes.GivenName, user.FirstName),
+               new Claim(ClaimTypes.Surname, user.LastName),
                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
@@ -100,6 +103,8 @@ namespace API.Repository.Implement
             {
                 new Claim(ClaimTypes.Name, request.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.GivenName, user.FirstName),
+                new Claim(ClaimTypes.Surname, user.LastName),
                 new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
@@ -151,7 +156,7 @@ namespace API.Repository.Implement
         {
             var secret = _configuration["JWT:Secret"] ?? "";
             var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-            var expirationTimeUtc = DateTime.UtcNow.AddHours(1);
+            var expirationTimeUtc = DateTime.UtcNow.AddMinutes(1);
             var localTimeZone = TimeZoneInfo.Local;
             var expirationTimeInLocalTimeZone = TimeZoneInfo.ConvertTimeFromUtc(expirationTimeUtc, localTimeZone);
 
@@ -197,7 +202,7 @@ namespace API.Repository.Implement
             return Convert.ToBase64String(randomNumber);
         }
 
-        public async Task<UserAddressDto> AddUserAddressAsync(UserAddressDto userAddressDto, string userId)
+        public async Task<UserAddressObjectResponse> AddUserAddressAsync(UserAddressRequest request, string userId)
         {
             // Check if a UserAddress already exists for the user
             var existingAddress = await _storeContext.UserAddresses
@@ -208,18 +213,24 @@ namespace API.Repository.Implement
                 throw new NotFoundException("The address already exists. Please update the address instead of creating a new one.");
             }
 
-            var address = _mapper.Map<UserAddress>(userAddressDto);
+            var address = _mapper.Map<UserAddress>(request);
             address.UserId = userId;
 
             _storeContext.UserAddresses.Add(address);
             await _storeContext.SaveChangesAsync();
 
-            var addressDto = _mapper.Map<UserAddressDto>(address);
 
-            return addressDto;
+            var response = new UserAddressObjectResponse()
+            {
+                StatusCode = ResponseCode.CREATED,
+                Message = "Get UserAddress",
+                Data = _mapper.Map<UserAddressResponse>(address)
+            };
+
+            return response;
         }
 
-        public async Task<UserAddressDto> UpdateUserAddressAsync(UserAddressDto userAddressDto, string userId)
+        public async Task<UserAddressObjectResponse> UpdateUserAddressAsync(UserAddressRequest request, string userId)
         {
             var existingAddress = await _storeContext.UserAddresses
                 .FirstOrDefaultAsync(a => a.UserId == userId);
@@ -229,15 +240,21 @@ namespace API.Repository.Implement
                 throw new NotFoundException("No address found for the specified user.");
             }
 
-            _mapper.Map(userAddressDto, existingAddress);
+            _mapper.Map(request, existingAddress);
             _storeContext.UserAddresses.Update(existingAddress);
             await _storeContext.SaveChangesAsync();
 
-            var updatedAddressDto = _mapper.Map<UserAddressDto>(existingAddress);
-            return updatedAddressDto;
+            var response = new UserAddressObjectResponse()
+            {
+                StatusCode = ResponseCode.CREATED,
+                Message = "Update UserAddress",
+                Data = _mapper.Map<UserAddressResponse>(existingAddress)
+            };
+
+            return response;
         }
 
-        public async Task<UserAddressDto> GetUserAddressAsync(string userId)
+        public async Task<UserAddressObjectResponse> GetUserAddressAsync(string userId)
         {
             var existingAddress = await _storeContext.UserAddresses
                 .FirstOrDefaultAsync(x => x.UserId == userId);
@@ -247,9 +264,15 @@ namespace API.Repository.Implement
                 throw new NotFoundException("No address found for the specified user.");
             }
 
-            var userAddressDto = _mapper.Map<UserAddressDto>(existingAddress);
 
-            return userAddressDto;
+            var response = new UserAddressObjectResponse()
+            {
+                StatusCode = ResponseCode.OK,
+                Message = "Get UserAddress Id",
+                Data = _mapper.Map<UserAddressResponse>(existingAddress)
+            };
+
+            return response;
         }
 
         public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth)
@@ -336,69 +359,67 @@ namespace API.Repository.Implement
 
         public async Task<FacebookUserData> VerifyFacebookToken(ExternalAuthDto externalAuth)
         {
-            //var appAccessToken = _configuration["Facebook:AppId"] + "|" + _configuration["Facebook:AppSecret"];
-
-            //// Create HttpClient and set up parameters
-            //using (var client = new HttpClient())
-            //{
-            //    var uri = $"https://graph.facebook.com/debug_token?input_token={externalAuth.IdToken}&access_token={appAccessToken}";
-
-            //    // Send request to Facebook and get the response
-            //    HttpResponseMessage response = await client.GetAsync(uri);
-
-            //    // Ensure we have a successful response
-            //    if (response.IsSuccessStatusCode)
-            //    {
-            //        var jsonContent = await response.Content.ReadAsStringAsync();
-
-            //        var result = JsonConvert.DeserializeObject<dynamic>(jsonContent);
-
-            //        if (result.data.app_id == _configuration["Facebook:AppId"])
-            //        {
-            //            var userUri = $"https://graph.facebook.com/v13.0/me?fields=id,name,email,first_name,last_name&access_token={externalAuth.IdToken}";
-            //            HttpResponseMessage userResponse = await client.GetAsync(userUri);
-
-            //            if (userResponse.IsSuccessStatusCode)
-            //            {
-            //                var userJsonContent = await userResponse.Content.ReadAsStringAsync();
-            //                var fbUserData = JsonConvert.DeserializeObject<FacebookUserData>(userJsonContent);
-
-            //                return fbUserData;
-            //            }
-            //        }
-            //    }
-            //}
-
-            //throw new BadRequestException("Bị lỗi rồi bạn ơi");
-
-            var appAccessToken = $"{_configuration["Facebook:AppId"]}|{_configuration["Facebook:AppSecret"]}";
-            var userAccessToken = externalAuth.IdToken;
-            var validationUri = $"https://graph.facebook.com/debug_token?input_token={userAccessToken}&access_token={appAccessToken}";
+            var appId = _configuration["Facebook:AppId"];
+            var appSecret = _configuration["Facebook:AppSecret"];
+            var validationUri = $"https://graph.facebook.com/debug_token?input_token={externalAuth.IdToken}&access_token={appId}|{appSecret}";
 
             using var client = new HttpClient();
             var validationResponse = await client.GetAsync(validationUri);
 
-            if (validationResponse.IsSuccessStatusCode)
+            if (!validationResponse.IsSuccessStatusCode)
             {
-                var validationContent = await validationResponse.Content.ReadAsStringAsync();
-                var validationResult = JsonConvert.DeserializeObject<dynamic>(validationContent);
-
-                if (validationResult.data.app_id == _configuration["Facebook:AppId"])
-                {
-                    var userUri = $"https://graph.facebook.com/v13.0/me?fields=id,name,email,first_name,last_name&access_token={userAccessToken}";
-                    var userResponse = await client.GetAsync(userUri);
-
-                    if (userResponse.IsSuccessStatusCode)
-                    {
-                        var userContent = await userResponse.Content.ReadAsStringAsync();
-                        var fbUserData = JsonConvert.DeserializeObject<FacebookUserData>(userContent);
-
-                        return fbUserData;
-                    }
-                }
+                throw new BadRequestException("Failed to validate Facebook access token.");
             }
 
-            throw new BadRequestException("Failed to fetch Facebook user data.");
+            var validationContent = await validationResponse.Content.ReadAsStringAsync();
+            var validationResult = JsonConvert.DeserializeObject<dynamic>(validationContent);
+
+            if (validationResult.data.app_id != appId)
+            {
+                throw new BadRequestException("Invalid Facebook App ID.");
+            }
+
+            var userUri = $"https://graph.facebook.com/v13.0/me?fields=id,name,email,first_name,last_name&access_token={externalAuth.IdToken}";
+            var userResponse = await client.GetAsync(userUri);
+
+            if (!userResponse.IsSuccessStatusCode)
+            {
+                throw new BadRequestException("Failed to fetch Facebook user data.");
+            }
+
+            var userContent = await userResponse.Content.ReadAsStringAsync();
+            var fbUserData = JsonConvert.DeserializeObject<FacebookUserData>(userContent);
+
+            return fbUserData;
+
+            //var appAccessToken = $"{_configuration["Facebook:AppId"]}|{_configuration["Facebook:AppSecret"]}";
+            //var userAccessToken = externalAuth.IdToken;
+            //var validationUri = $"https://graph.facebook.com/debug_token?input_token={userAccessToken}&access_token={appAccessToken}";
+
+            //using var client = new HttpClient();
+            //var validationResponse = await client.GetAsync(validationUri);
+
+            //if (validationResponse.IsSuccessStatusCode)
+            //{
+            //    var validationContent = await validationResponse.Content.ReadAsStringAsync();
+            //    var validationResult = JsonConvert.DeserializeObject<dynamic>(validationContent);
+
+            //    if (validationResult.data.app_id == _configuration["Facebook:AppId"])
+            //    {
+            //        var userUri = $"https://graph.facebook.com/v13.0/me?fields=id,name,email,first_name,last_name&access_token={userAccessToken}";
+            //        var userResponse = await client.GetAsync(userUri);
+
+            //        if (userResponse.IsSuccessStatusCode)
+            //        {
+            //            var userContent = await userResponse.Content.ReadAsStringAsync();
+            //            var fbUserData = JsonConvert.DeserializeObject<FacebookUserData>(userContent);
+
+            //            return fbUserData;
+            //        }
+            //    }
+            //}
+
+            //throw new BadRequestException("Failed to fetch Facebook user data.");
 
         }
 

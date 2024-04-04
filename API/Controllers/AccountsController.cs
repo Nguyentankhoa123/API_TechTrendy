@@ -90,7 +90,6 @@ namespace API.Controllers
 
         public IActionResult TestEmail()
         {
-            //var message = new Message(new string[] { "itshopvl2002@gmail.com" }, "Test email", "Nguyen Tan Khoa.");
             var message = new Message(new string[] { "itshopvl2002@gmail.com" }, "Test email", "Nguyen Tan Khoa.");
             _emailSender.SendEmail(message);
             return Ok("Thanh cong");

@@ -35,9 +35,11 @@ namespace API.Mappings
 
             CreateMap<Tablet, TabletResponse>().ReverseMap();
 
-            CreateMap<ApplicationUser, SignUpDto>().ReverseMap();
+            CreateMap<ApplicationUser, SignUpRequest>().ReverseMap();
 
-            CreateMap<UserAddress, UserAddressDto>().ReverseMap();
+            CreateMap<UserAddress, UserAddressRequest>().ReverseMap();
+
+            CreateMap<UserAddress, UserAddressResponse>().ReverseMap();
 
             CreateMap<CartItem, CartItemDto>()
                 .ForMember(d => d.Name, opt => opt.MapFrom(src => src.Product.Name))
