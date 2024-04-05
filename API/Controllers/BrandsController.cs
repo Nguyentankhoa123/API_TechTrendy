@@ -27,9 +27,19 @@ namespace API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands()
+        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands(int pageNumber, int pageSize)
         {
-            return await _context.Brands.ToListAsync();
+            var brands = await _context.Brands
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!brands.Any())
+            {
+                return NotFound("No brands found.");
+            }
+
+            return Ok(brands);
         }
 
         /// <summary>

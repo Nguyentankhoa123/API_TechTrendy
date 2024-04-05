@@ -28,9 +28,19 @@ namespace API.Controllers
         /// <returns></returns>
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int pageNumber, int pageSize)
         {
-            return await _context.Categories.ToListAsync();
+            var categories = await _context.Categories
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!categories.Any())
+            {
+                return NotFound("No categories found.");
+            }
+
+            return Ok(categories);
         }
 
         /// <summary>

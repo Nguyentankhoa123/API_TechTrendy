@@ -22,9 +22,9 @@ namespace API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int pageNumber, int pageSize)
         {
-            var result = await _blogRepository.GetAllBlog();
+            var result = await _blogRepository.GetAllBlog(pageNumber, pageSize);
             return Ok(result);
         }
 
