@@ -62,14 +62,15 @@ namespace API.Repository.Implement
             return response;
         }
 
-        public async Task<BlogListObjectResponse> GetAllBlog()
+        public async Task<BlogListObjectResponse> GetAllBlog(int pageNumber, int pageSize)
         {
-
             var blogs = await _storeContext.Blogs
                 .Include(b => b.User)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            if (blogs == null)
+            if (blogs == null || !blogs.Any())
             {
                 throw new NotFoundException("No blogs found.");
             };

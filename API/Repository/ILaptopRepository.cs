@@ -5,7 +5,7 @@ namespace API.Repository
 {
     public interface ILaptopRepository
     {
-        Task<LaptopListObjectResponse> GetAsync();
+        Task<LaptopListObjectResponse> GetAsync(int pageNumber, int pageSize);
 
         Task<LaptopObjectResponse> GetIdAsync(int id);
 

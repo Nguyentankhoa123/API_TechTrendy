@@ -8,7 +8,7 @@ namespace API.Repository
 
         Task<BlogObjectResponse> GetBlog(int blogId);
 
-        Task<BlogListObjectResponse> GetAllBlog();
+        Task<BlogListObjectResponse> GetAllBlog(int pageNumber, int pageSize);
 
         Task<BlogObjectResponse> UpdateBlog(int blogId, BlogRequest request);
 
