@@ -156,7 +156,7 @@ namespace API.Repository.Implement
         {
             var secret = _configuration["JWT:Secret"] ?? "";
             var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-            var expirationTimeUtc = DateTime.UtcNow.AddMinutes(1);
+            var expirationTimeUtc = DateTime.UtcNow.AddHours(1);
             var localTimeZone = TimeZoneInfo.Local;
             var expirationTimeInLocalTimeZone = TimeZoneInfo.ConvertTimeFromUtc(expirationTimeUtc, localTimeZone);
 

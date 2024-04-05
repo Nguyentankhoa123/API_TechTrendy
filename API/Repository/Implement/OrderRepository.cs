@@ -351,9 +351,6 @@ namespace API.Repository.Implement
 
             var emailContent = await template.RenderAsync(new { user = user, order = order, address = address, time = localCreatedAt });
 
-
-            // Gửi email cho người dùng
-            //var message = new Message(new[] { user.Email }, "Order Confirmation", emailContent);
             var message = new Message(new[] { user.Email }, "Order Confirmation", emailContent);
             _emailSender.SendEmail(message);
 
