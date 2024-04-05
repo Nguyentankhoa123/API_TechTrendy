@@ -4,8 +4,6 @@ namespace API.Model.Dtos.User
 {
     public class UserAddressDto
     {
-
-        //public string UserId { get; set; }
         public string Name { get; set; }
         [DisplayName("Số điện thoại giao hàng")]
         public string Contact { get; set; }
