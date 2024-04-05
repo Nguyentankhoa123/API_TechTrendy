@@ -1,9 +1,8 @@
 ﻿using API.Data;
 using API.Model.Dtos.User;
-using API.Model.Entity;
+using API.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,65 +14,52 @@ namespace API.Controllers
     {
         private readonly StoreContext _storeContext;
         private readonly IMapper _mapper;
+        private readonly IAccountRepository _accountRepository;
 
-        public UserAddressController(StoreContext storeContext, IMapper mapper)
+        public UserAddressController(StoreContext storeContext, IMapper mapper, IAccountRepository accountRepository)
         {
             _storeContext = storeContext;
             _mapper = mapper;
+            _accountRepository = accountRepository;
         }
-        // GET: api/<UserAddressController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
+        /// <summary>
+        /// Get the user address by id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         // GET api/<UserAddressController>/5
         [HttpGet("{userId}")]
-        public async Task<IActionResult> Get(string userId)
+        public async Task<IActionResult> GetUserAddress(string userId)
         {
-            var user = _storeContext.UserAddresses
-                .Include(u => u.User)
-                .FirstOrDefault(x => x.UserId == userId);
-
-            return Ok(user);
+            var result = await _accountRepository.GetUserAddressAsync(userId);
+            return Ok(result);
         }
-
+        /// <summary>
+        /// Create a new user address
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         // POST api/<UserAddressController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] UserAddressDto userAddressDto, [FromQuery] string userId)
+        public async Task<IActionResult> Post([FromBody] UserAddressRequest request, [FromQuery] string userId)
         {
-            // Check if a UserAddress already exists for the user
-            var existingAddress = await _storeContext.UserAddresses
-                .FirstOrDefaultAsync(a => a.UserId == userId);
-
-            if (existingAddress != null)
-            {
-                return BadRequest("Địa chỉ đã tồn tại. Vui lòng cập nhật địa chỉ thay vì tạo mới.");
-            }
-
-            var address = _mapper.Map<UserAddress>(userAddressDto);
-            address.UserId = userId;
-
-            _storeContext.UserAddresses.Add(address);
-            await _storeContext.SaveChangesAsync();
-
-            var addressDto = _mapper.Map<UserAddressDto>(address);
-
-            return Ok(addressDto);
+            var result = await _accountRepository.AddUserAddressAsync(request, userId);
+            return CreatedAtAction(nameof(GetUserAddress), new { userId = userId }, result);
         }
 
-
+        /// <summary>
+        /// Update the user address
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         // PUT api/<UserAddressController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> Put([FromBody] UserAddressRequest request, string userId)
         {
-        }
-
-        // DELETE api/<UserAddressController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var result = await _accountRepository.UpdateUserAddressAsync(request, userId);
+            return CreatedAtAction(nameof(GetUserAddress), new { userId = userId }, result);
         }
     }
 }

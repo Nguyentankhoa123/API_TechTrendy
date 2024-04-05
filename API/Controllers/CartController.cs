@@ -22,7 +22,11 @@ namespace API.Controllers
             _cartRepository = cartRepository;
         }
 
-        // GET api/<CartController>/5
+        /// <summary>
+        /// Get cart by id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetCart(string userId)
         {
@@ -30,7 +34,13 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // POST api/<CartController>
+        /// <summary>
+        /// Add to cart
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="productId"></param>
+        /// <param name="quantity"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddToCart(string userId, int productId, int quantity)
         {
@@ -39,8 +49,13 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetCart), new { userId = userId }, result);
         }
 
-
-        // DELETE api/<CartController>
+        /// <summary>
+        /// Decrease cart item
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="productId"></param>
+        /// <param name="quantity"></param>
+        /// <returns></returns>
         [HttpDelete("Decrease")]
         public async Task<IActionResult> DecreaseCartItem(string userId, int productId, int quantity)
         {
@@ -48,6 +63,12 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetCart), new { userId = userId }, result);
         }
 
+        /// <summary>
+        /// Remove cart item
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="productId"></param>
+        /// <returns></returns>
         [HttpDelete("Remove")]
         public async Task<IActionResult> RemoveCartItem(string userId, int productId)
         {
@@ -55,6 +76,11 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetCart), new { userId = userId }, result);
         }
 
+        /// <summary>
+        /// Remove all cart items
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpDelete("RemoveAll")]
         public async Task<IActionResult> RemoveAllCartItem(string userId)
         {

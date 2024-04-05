@@ -15,7 +15,11 @@ namespace API.Controllers
         {
             _cloudinaryRepository = cloudinaryRepository;
         }
-
+        /// <summary>
+        /// Upload image
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
         [HttpPost("upload")]
         public async Task<IActionResult> UploadImages(List<IFormFile> files)
         {

@@ -16,7 +16,11 @@ namespace API.Controllers
         {
             _blogRepository = blogRepository;
         }
-        // GET: api/<BlogController>
+
+        /// <summary>
+        /// Get all blog
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -24,7 +28,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // GET api/<BlogController>/5
+        /// <summary>
+        /// Get blog by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -32,7 +40,12 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // POST api/<BlogController>
+        /// <summary>
+        /// Craete a new blog
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] BlogRequest request, [FromQuery] string userId)
         {
@@ -40,7 +53,12 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // PUT api/<BlogController>/5
+        /// <summary>
+        /// Update blog by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] BlogRequest request)
         {
@@ -48,7 +66,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // DELETE api/<BlogController>/5
+        /// <summary>
+        /// Delete blog by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

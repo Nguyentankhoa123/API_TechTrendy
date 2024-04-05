@@ -22,14 +22,21 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/Brands
+        /// <summary>
+        /// Get all brands
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Brand>>> GetBrands()
         {
             return await _context.Brands.ToListAsync();
         }
 
-        // GET: api/Brands/5
+        /// <summary>
+        /// Get brand by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Brand>> GetBrand(int id)
         {
@@ -43,40 +50,11 @@ namespace API.Controllers
             return brand;
         }
 
-        // PUT: api/Brands/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        [Authorize(Roles = Roles.Admin)]
-        public async Task<IActionResult> PutBrand(int id, Brand brand)
-        {
-            if (id != brand.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(brand).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BrandExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Brands
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Create a new brand
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         //[Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<BrandObjectResponse>> PostBrand(BrandRequest request)
@@ -88,7 +66,11 @@ namespace API.Controllers
             return Ok(brand);
         }
 
-        // DELETE: api/Brands/5
+        /// <summary>
+        /// Delete brand by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteBrand(int id)
@@ -103,11 +85,6 @@ namespace API.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool BrandExists(int id)
-        {
-            return _context.Brands.Any(e => e.Id == id);
         }
     }
 }

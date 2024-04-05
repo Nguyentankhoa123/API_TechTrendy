@@ -22,6 +22,11 @@ namespace API.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// Refresh token
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("refresh-token")]
         public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
@@ -30,6 +35,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Revoke refresh token
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost]
         [Route("revoke/{username}")]
@@ -46,31 +56,5 @@ namespace API.Controllers
 
             return Ok("Success");
         }
-
-        [Authorize]
-        [HttpPost]
-        [Route("revoke-all")]
-        public async Task<IActionResult> RevokeAll()
-        {
-            var users = _userManager.Users.ToList();
-            foreach (var user in users)
-            {
-                user.RefreshToken = null;
-                await _userManager.UpdateAsync(user);
-            }
-            return Ok("Success");
-        }
-
-
-        //[HttpPost]
-        //[Route("Refresh-Token")]
-        //public async Task<IActionResult> RefreshTokenTest(TokenRespone token)
-        //{
-        //    var result = await _accountRepository.RenewAccessTokenAsync(token);
-
-
-        //    return Ok(result);
-
-        //}
     }
 }

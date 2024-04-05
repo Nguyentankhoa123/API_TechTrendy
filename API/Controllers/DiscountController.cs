@@ -22,14 +22,24 @@ namespace API.Controllers
             _storeContext = storeContext;
             _mapper = mapper;
         }
-        // GET: api/<DiscountController>
+        /// <summary>
+        /// Get all discounts
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string code, int pageNumber = 1, int pageSize = 5)
         {
             var result = await _discountRepository.GetAllDiscountWithProduct(code, pageNumber, pageSize);
             return Ok(result);
         }
-
+        /// <summary>
+        /// Get discount by id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         // GET api/<DiscountController>/5
         [HttpGet("{userId}")]
         public async Task<IActionResult> Get(string userId)
@@ -37,25 +47,18 @@ namespace API.Controllers
             var result = await _discountRepository.GetAllDiscountsForUser(userId);
             return Ok(result);
         }
-
+        /// <summary>
+        /// Create a new discount
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="productId"></param>
+        /// <returns></returns>
         // POST api/<DiscountController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] DiscountRequest request, [FromQuery] List<int>? productId)
         {
             var result = await _discountRepository.CreateDiscountCode(request, productId);
             return Ok(result);
-        }
-
-        // PUT api/<DiscountController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<DiscountController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

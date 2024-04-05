@@ -22,13 +22,11 @@ namespace API.Controllers
             _storeContext = storeContext;
             _mapper = mapper;
         }
-        // GET: api/<OrderController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
+        /// <summary>
+        /// Get order by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<OrderController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
@@ -38,24 +36,19 @@ namespace API.Controllers
             return Ok(order);
         }
 
+        /// <summary>
+        /// Create a new order
+        /// </summary>
+        /// <param name="orderDto"></param>
+        /// <param name="userId"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
         // POST api/<OrderController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] OrderRequest orderDto, string userId, string? code)
         {
             var result = await _orderRepository.CreateOrderAsync(orderDto, userId, code, HttpContext);
             return CreatedAtAction(nameof(Get), new { userId = userId }, result);
-        }
-
-        // PUT api/<OrderController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<OrderController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

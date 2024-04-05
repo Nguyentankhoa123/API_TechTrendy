@@ -20,6 +20,13 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
+
+        /// <summary>
+        /// Get all products
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAllProducts([FromQuery] int pageNumber = 1, int pageSize = 5)
         {

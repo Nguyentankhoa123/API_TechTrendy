@@ -16,21 +16,24 @@ namespace API.Controllers
         {
             _commentRepository = commentRepository;
         }
-        // GET: api/<CommentController>
-        //[HttpGet]
-        //public List<string> Get()
-        //{
-        //    return new string[] { "value1", "value2" };
-        //}
 
-        // GET api/<CommentController>/5
+        /// <summary>
+        /// Get all comment
+        /// </summary>
+        /// <param name="parentId"></param>
+        /// <param name="productId"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int? parentId, int productId)
         {
             var result = await _commentRepository.GetCommentsByParentId(parentId, productId);
             return Ok(result);
         }
-
+        /// <summary>
+        /// Post comment
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         // POST api/<CommentController>
         [HttpPost]
         public async Task<IActionResult> Post(CommentRequest request)
@@ -39,12 +42,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        // PUT api/<CommentController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
+        /// <summary>
+        /// Delete comment
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         // DELETE api/<CommentController>/5
         [HttpDelete]
         public async Task<IActionResult> Delete([FromBody] DeleteCommentRequest request)

@@ -26,6 +26,11 @@ namespace API.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// Sign in
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignIn([FromBody] SignInRequest request)
         {
@@ -33,6 +38,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Sign up a new admin
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("SignUpAdmin")]
         public async Task<IActionResult> SignUpAdmin([FromBody] SignUpRequest request)
         {
@@ -46,6 +56,11 @@ namespace API.Controllers
             return BadRequest(result.Errors);
         }
 
+        /// <summary>
+        /// Sign up a new customer
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("SignUpCustomer")]
         public async Task<IActionResult> SignUpCustomer([FromBody] SignUpRequest request)
         {
@@ -59,6 +74,11 @@ namespace API.Controllers
             return BadRequest(result.Errors);
         }
 
+        /// <summary>
+        /// Sign up a new employee
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("SignUpEmployee")]
         public async Task<IActionResult> SignUpEmployee([FromBody] SignUpRequest request)
         {
@@ -72,6 +92,11 @@ namespace API.Controllers
             return BadRequest(result.Errors);
         }
 
+        /// <summary>
+        /// Sign in with Google
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("SignInGoogle")]
         public async Task<IActionResult> SignInGoogle([FromBody] ExternalAuthDto request)
         {
@@ -79,6 +104,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Sign in with Facebook
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("SignInFacebook")]
         public async Task<IActionResult> SignInFacebook([FromBody] ExternalAuthDto request)
         {
@@ -86,16 +116,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("SendEmail")]
-
-        public IActionResult TestEmail()
-        {
-            var message = new Message(new string[] { "itshopvl2002@gmail.com" }, "Test email", "Nguyen Tan Khoa.");
-            _emailSender.SendEmail(message);
-            return Ok("Thanh cong");
-        }
-
-
+        /// <summary>
+        /// Forgot password
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
         [HttpPost("ForgotPassword")]
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(string email)
@@ -244,7 +269,7 @@ namespace API.Controllers
                         var message = new Message(new string[] { user.Email }, "Forgot Password link", emailContent);
                         _emailSender.SendEmail(message);
 
-                        return Ok($"Da send Email cho {user.Email} thanh cong");
+                        return Ok($"Email has been successfully sent to {user.Email}");
                     }
                     else
                     {
@@ -262,14 +287,11 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("reset-password")]
-        public async Task<IActionResult> ResetPassword(string token, string email)
-        {
-            var model = new ResetPassword { Token = token, Email = email };
-
-            return Ok(new { model });
-        }
-
+        /// <summary>
+        /// Reset password
+        /// </summary>
+        /// <param name="resetPassword"></param>
+        /// <returns></returns>
         [HttpPost("reset-password")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword(ResetPassword resetPassword)
@@ -293,6 +315,11 @@ namespace API.Controllers
             return BadRequest("Couldnot send link to email, please try again.");
         }
 
+        /// <summary>
+        /// Delete account
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("DeleteAccount/{id}")]
         public async Task<IActionResult> DeleteAccount(string id)
         {

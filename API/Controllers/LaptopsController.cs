@@ -22,22 +22,28 @@ namespace API.Controllers
             _laptopRepository = laptopRepository;
         }
 
+        /// <summary>
+        /// Get all laptops
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         //// GET: api/Laptops
         [HttpGet]
-        public async Task<IActionResult> GetLaptops()
+        //[Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetLaptops([FromQuery] int pageNumber = 1, int pageSize = 5)
         {
-            //var laptops = await _context.Products.OfType<Laptop>()
-            //    .Include(p => p.Brand)
-            //    .Include(p => p.Category)
-            //    .ToListAsync();
 
-            //return Ok(laptops);
-
-            var result = await _laptopRepository.GetAsync();
+            var result = await _laptopRepository.GetAsync(pageNumber, pageSize);
 
             return Ok(result);
         }
 
+        /// <summary>
+        /// Get laptop by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: api/Laptops/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Laptop>> GetLaptop(int id)
@@ -46,6 +52,14 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Search for laptop
+        /// </summary>
+        /// <param name="brandQuery"></param>
+        /// <param name="priceSortOrder"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         [HttpGet("search-laptops")]
         public async Task<IActionResult> GetLaptops([FromQuery] string? brandQuery, string? priceSortOrder, int pageNumber = 1, int pageSize = 10)
         {
@@ -53,19 +67,30 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Update laptop by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         //// PUT: api/Laptops/5
         [HttpPut("{id}")]
-        //[Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> PutLaptop(int id, [FromBody] LaptopRequest request)
         {
             var result = await _laptopRepository.UpdateAsync(id, request);
             return Ok(result);
         }
 
+        /// <summary>
+        /// Create a new laptop
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="brandId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         // POST: api/Laptops
-
         [HttpPost]
-        //[Authorize(Roles = Roles.Admin)]
+        //[Authorize(Roles = Roles.Admin)]  
         public async Task<ActionResult<LaptopObjectResponse>> PostLaptop([FromQuery] int categoryId, int brandId, [FromBody] LaptopRequest request)
         {
             var laptop = _mapper.Map<Laptop>(request);
@@ -75,7 +100,11 @@ namespace API.Controllers
             return CreatedAtAction("GetLaptop", new { id = laptop.Id }, result);
         }
 
-
+        /// <summary>
+        /// Delete laptop by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE: api/Laptops/5
         [HttpDelete("{id}")]
         //[Authorize(Roles = Roles.Admin)]
