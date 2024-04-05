@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -48,7 +49,17 @@ builder.Services.AddSwaggerGen(options =>
             new List<string>()
         }
     });
+    options.DocInclusionPredicate((docName, apiDesc) =>
+    {
+        var routeTemplate = apiDesc.RelativePath;
+        var hiddenRoutes = new List<string> { "login", "register", "refresh", "confirmEmail", "resendConfirmationEmail", "forgotPassword", "resetPassword", "manage/2fa", "manage/info" };
+        return !hiddenRoutes.Contains(routeTemplate);
+    });
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,
+        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
 });
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyCors", build =>
