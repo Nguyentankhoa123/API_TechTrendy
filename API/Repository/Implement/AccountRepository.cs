@@ -204,14 +204,6 @@ namespace API.Repository.Implement
 
         public async Task<UserAddressObjectResponse> AddUserAddressAsync(UserAddressRequest request, string userId)
         {
-            // Check if a UserAddress already exists for the user
-            var existingAddress = await _storeContext.UserAddresses
-                .FirstOrDefaultAsync(x => x.UserId == userId);
-
-            if (existingAddress != null)
-            {
-                throw new NotFoundException("The address already exists. Please update the address instead of creating a new one.");
-            }
 
             var address = _mapper.Map<UserAddress>(request);
             address.UserId = userId;
@@ -230,15 +222,16 @@ namespace API.Repository.Implement
             return response;
         }
 
-        public async Task<UserAddressObjectResponse> UpdateUserAddressAsync(UserAddressRequest request, string userId)
+        public async Task<UserAddressObjectResponse> UpdateUserAddressAsync(UserAddressRequest request, string userId, int addressId)
         {
             var existingAddress = await _storeContext.UserAddresses
-                .FirstOrDefaultAsync(a => a.UserId == userId);
+                .FirstOrDefaultAsync(a => a.UserId == userId && a.Id == addressId);
 
             if (existingAddress == null)
             {
                 throw new NotFoundException("No address found for the specified user.");
             }
+
 
             _mapper.Map(request, existingAddress);
             _storeContext.UserAddresses.Update(existingAddress);
@@ -254,22 +247,23 @@ namespace API.Repository.Implement
             return response;
         }
 
-        public async Task<UserAddressObjectResponse> GetUserAddressAsync(string userId)
+        public async Task<UserAddressListObjectResponse> GetUserAddressAsync(string userId)
         {
-            var existingAddress = await _storeContext.UserAddresses
-                .FirstOrDefaultAsync(x => x.UserId == userId);
+            var existingAddresses = await _storeContext.UserAddresses
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
 
-            if (existingAddress == null)
+            if (existingAddresses == null || !existingAddresses.Any())
             {
                 throw new NotFoundException("No address found for the specified user.");
             }
 
 
-            var response = new UserAddressObjectResponse()
+            var response = new UserAddressListObjectResponse()
             {
                 StatusCode = ResponseCode.OK,
                 Message = "Get UserAddress Id",
-                Data = _mapper.Map<UserAddressResponse>(existingAddress)
+                Data = _mapper.Map<List<UserAddressResponse>>(existingAddresses)
             };
 
             return response;

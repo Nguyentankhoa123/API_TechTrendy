@@ -15,9 +15,9 @@ namespace API.Repositories
 
         Task<UserAddressObjectResponse> AddUserAddressAsync(UserAddressRequest request, string userId);
 
-        Task<UserAddressObjectResponse> UpdateUserAddressAsync(UserAddressRequest request, string userId);
+        Task<UserAddressObjectResponse> UpdateUserAddressAsync(UserAddressRequest request, string userId, int addressId);
 
-        Task<UserAddressObjectResponse> GetUserAddressAsync(string userId);
+        Task<UserAddressListObjectResponse> GetUserAddressAsync(string userId);
 
         Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth);
 

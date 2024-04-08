@@ -56,9 +56,9 @@ namespace API.Controllers
         /// <returns></returns>
         // PUT api/<UserAddressController>/5
         [HttpPut("{userId}")]
-        public async Task<IActionResult> Put([FromBody] UserAddressRequest request, string userId)
+        public async Task<IActionResult> Put([FromBody] UserAddressRequest request, string userId, int addressId)
         {
-            var result = await _accountRepository.UpdateUserAddressAsync(request, userId);
+            var result = await _accountRepository.UpdateUserAddressAsync(request, userId, addressId);
             return CreatedAtAction(nameof(GetUserAddress), new { userId = userId }, result);
         }
     }
