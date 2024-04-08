@@ -41,6 +41,7 @@ namespace API.Mappings
 
             CreateMap<UserAddress, UserAddressResponse>().ReverseMap();
 
+
             CreateMap<CartItem, CartItemDto>()
                 .ForMember(d => d.Name, opt => opt.MapFrom(src => src.Product.Name))
                 .ForMember(d => d.Price, opt => opt.MapFrom(src => src.Product.Price))
