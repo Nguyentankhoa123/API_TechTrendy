@@ -5,6 +5,7 @@ namespace API.Model.Dtos.User
 {
     public class UserAddressResponse
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         [DisplayName("Số điện thoại giao hàng")]
         public string Contact { get; set; }
@@ -19,4 +20,6 @@ namespace API.Model.Dtos.User
     }
 
     public class UserAddressObjectResponse : ObjectResponse<UserAddressResponse> { }
+
+    public class UserAddressListObjectResponse : ObjectResponse<List<UserAddressResponse>> { }
 }
