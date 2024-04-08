@@ -45,10 +45,10 @@ namespace API.Controllers
         /// <returns></returns>
         // POST api/<OrderController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] OrderRequest orderDto, string userId, string? code)
+        public async Task<IActionResult> Post([FromBody] OrderRequest orderDto, string userId, string? code, int addressId)
         {
-            var result = await _orderRepository.CreateOrderAsync(orderDto, userId, code, HttpContext);
-            return CreatedAtAction(nameof(Get), new { userId = userId }, result);
+            var result = await _orderRepository.CreateOrderAsync(orderDto, userId, code, addressId, HttpContext);
+            return CreatedAtAction(nameof(Get), new { id = result.Data.Id }, result);
         }
     }
 }

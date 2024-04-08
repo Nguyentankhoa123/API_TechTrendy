@@ -29,14 +29,13 @@ namespace API.Repository.Implement
             _config = config;
         }
 
-        public async Task<OrderObjectResponse> CreateOrderAsync(OrderRequest request, string userId, string? code, HttpContext context)
+        public async Task<OrderObjectResponse> CreateOrderAsync(OrderRequest request, string userId, string? code, int addressId, HttpContext context)
         {
 
             // Fetch the user's information from the database
             var user = await _storeContext.Users
-                .Include(u => u.Address) // Ensure the Address is loaded
                 .FirstOrDefaultAsync(u => u.Id == userId);
-            var address = await _storeContext.UserAddresses.FirstOrDefaultAsync(a => a.UserId == userId);
+            var address = await _storeContext.UserAddresses.FirstOrDefaultAsync(a => a.UserId == userId && a.Id == addressId);
             // If the user does not exist, throw an exception
             if (user == null)
             {
@@ -349,11 +348,6 @@ namespace API.Repository.Implement
                   </body>
                 </html>");
 
-            var emailContent = await template.RenderAsync(new { user = user, order = order, address = address, time = localCreatedAt });
-
-            var message = new Message(new[] { user.Email }, "Order Confirmation", emailContent);
-            _emailSender.SendEmail(message);
-
             var response = new OrderObjectResponse
             {
                 StatusCode = ResponseCode.OK,
@@ -361,6 +355,14 @@ namespace API.Repository.Implement
                 Data = _mapper.Map<OrderResponse>(order)
             };
             response.Data.PaymentUrl = paymentUrl;
+
+            if (response.StatusCode == ResponseCode.OK)
+            {
+                var emailContent = await template.RenderAsync(new { user = user, order = order, address = address, time = localCreatedAt });
+                var message = new Message(new[] { user.Email }, "Order Confirmation", emailContent);
+                _emailSender.SendEmail(message);
+            }
+
             return response;
         }
 
