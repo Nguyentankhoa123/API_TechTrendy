@@ -27,7 +27,7 @@ namespace API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands(int pageNumber, int pageSize)
+        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands(int pageNumber = 1, int pageSize = 5)
         {
             var brands = await _context.Brands
                 .Skip((pageNumber - 1) * pageSize)

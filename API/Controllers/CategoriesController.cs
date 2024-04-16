@@ -28,7 +28,7 @@ namespace API.Controllers
         /// <returns></returns>
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int pageNumber, int pageSize)
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int pageNumber = 1, int pageSize = 5)
         {
             var categories = await _context.Categories
                 .Skip((pageNumber - 1) * pageSize)
