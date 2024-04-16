@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20240326054548_Init")]
+    [Migration("20240414113405_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -502,7 +502,7 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PictureUrl")
+                    b.Property<string>("PictureUrls")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
