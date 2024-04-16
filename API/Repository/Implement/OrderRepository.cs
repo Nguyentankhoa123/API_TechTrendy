@@ -9,6 +9,7 @@ using API.Shared.Enums;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Scriban;
+using System.Globalization;
 
 namespace API.Repository.Implement
 {
@@ -58,11 +59,13 @@ namespace API.Repository.Implement
             // Liên kết Order với User
             order.User = user;
 
+
             order.OrderDetails = cart.CartItems.Select(ci => new OrderDetail
             {
                 ProductId = ci.ProductId,
                 Quantity = ci.Quantity,
                 Total = ci.Quantity * ci.Product.Price
+
             }).ToList();
 
             foreach (var detail in order.OrderDetails)
@@ -180,6 +183,13 @@ namespace API.Repository.Implement
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime localCreatedAt = TimeZoneInfo.ConvertTimeFromUtc(order.CreatedAt, vietnamTimeZone);
 
+            var totalPrice = order.TotalPrice.ToString("C", new CultureInfo("vi-VN"));
+
+            var price = "";
+            foreach (var item in order.OrderDetails)
+            {
+                price = item.Product.Price.ToString("C", new CultureInfo("vi-VN"));
+            };
             var template = Template.Parse(@"
                 <!DOCTYPE html>
                 <html lang=""en"">
@@ -323,7 +333,7 @@ namespace API.Repository.Implement
                             <td style=""padding: 5px 10px"">
                                  {{item.product.name}}
                             </td>
-                            <td>{{item.product.price}}</td>
+                            <td>{{price}}</td>
                             <td style=""text-align: center; padding: 5px 10px"">{{item.quantity}}</td>
                           </tr>
                         {{- end }}     
@@ -336,7 +346,7 @@ namespace API.Repository.Implement
                                     <td>
                                       <strong>Giá trị đơn hàng</strong>
                                     </td>
-                                    <td style=""text-align: right"">{{order.total_price}}</td>
+                                    <td style=""text-align: right"">{{total_price}}</td>
                                   </tr>
                                 </tbody>
                               </table>
@@ -358,7 +368,7 @@ namespace API.Repository.Implement
 
             if (response.StatusCode == ResponseCode.OK)
             {
-                var emailContent = await template.RenderAsync(new { user = user, order = order, address = address, time = localCreatedAt });
+                var emailContent = await template.RenderAsync(new { user = user, order = order, address = address, total_price = totalPrice, price = price, time = localCreatedAt });
                 var message = new Message(new[] { user.Email }, "Order Confirmation", emailContent);
                 _emailSender.SendEmail(message);
             }
