@@ -45,7 +45,7 @@ namespace API.Model.Dtos.TabletDto
 
         [DisplayName("Hình ảnh")]
         [Required(ErrorMessage = "Ảnh không được để trống")]
-        public string PictureUrl { get; set; }
+        public List<string> PictureUrls { get; set; }
 
         [DisplayName("Mô tả sản phẩm")]
         [Required(ErrorMessage = "Mô tả sản phẩm không được để trống")]

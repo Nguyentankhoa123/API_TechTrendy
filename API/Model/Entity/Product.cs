@@ -60,7 +60,7 @@ namespace API.Model.Entity
 
         [DisplayName("Hình ảnh")]
         [Required(ErrorMessage = "Ảnh không được để trống")]
-        public string PictureUrl { get; set; }
+        public List<string> PictureUrls { get; set; }
 
         [DisplayName("Mô tả sản phẩm")]
         [Required(ErrorMessage = "Mô tả sản phẩm không được để trống")]
@@ -69,6 +69,9 @@ namespace API.Model.Entity
         public int ReleaseDate { get; set; }
 
         public int Quantity { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
 
         public virtual ICollection<Comment> Comments { get; set; }
     }

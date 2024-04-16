@@ -45,7 +45,7 @@ namespace API.Mappings
             CreateMap<CartItem, CartItemDto>()
                 .ForMember(d => d.Name, opt => opt.MapFrom(src => src.Product.Name))
                 .ForMember(d => d.Price, opt => opt.MapFrom(src => src.Product.Price))
-                .ForMember(d => d.PictureUrl, opt => opt.MapFrom(src => src.Product.PictureUrl))
+                .ForMember(d => d.PictureUrls, opt => opt.MapFrom(src => src.Product.PictureUrls))
                 .ForMember(d => d.CategoryName, opt => opt.MapFrom(src => src.Product.Category.Name))
                 .ForMember(d => d.BrandName, opt => opt.MapFrom(src => src.Product.Brand.Name))
                 .ReverseMap();
