@@ -26,6 +26,7 @@ namespace API.Repository.Implement
                 .Take(pageSize)
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
+                .Include(p => p.Inventory)
                 .ToListAsync();
 
             var tablet = await _storeContext.Products.OfType<Tablet>()
@@ -33,9 +34,14 @@ namespace API.Repository.Implement
                 .Take(pageSize)
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
+                .Include(p => p.Inventory)
                 .ToListAsync();
 
-            return new { laptop, tablet };
+            return new
+            {
+                laptop,
+                tablet
+            };
         }
 
 
