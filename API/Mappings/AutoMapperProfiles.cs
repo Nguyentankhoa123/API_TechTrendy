@@ -64,8 +64,6 @@ namespace API.Mappings
             CreateMap<UserAddress, UserAddressDto>().ReverseMap();
 
             CreateMap<OrderDetail, OrderDetailDto>()
-                .ForMember(d => d.Price, opt => opt.MapFrom(src => src.Product.Price))
-                .ForMember(d => d.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ReverseMap();
 
             CreateMap<Discount, DiscountRequest>().ReverseMap();

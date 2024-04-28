@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using API.Model.Entity;
 using API.Repositories;
+using API.Services.Exceptions;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,7 @@ namespace API.Repository.Implement
         public async Task<dynamic> GetAllProducts(int pageNumber = 1, int pageSize = 5)
         {
             var skipResults = (pageNumber - 1) * pageSize;
-            var laptop = await _storeContext.Products.OfType<Laptop>()
+            var laptopProducts = await _storeContext.Products.OfType<Laptop>()
                 .Skip(skipResults)
                 .Take(pageSize)
                 .Include(p => p.Category)
@@ -29,7 +30,7 @@ namespace API.Repository.Implement
                 .Include(p => p.Inventory)
                 .ToListAsync();
 
-            var tablet = await _storeContext.Products.OfType<Tablet>()
+            var tabletProducts = await _storeContext.Products.OfType<Tablet>()
                 .Skip(skipResults)
                 .Take(pageSize)
                 .Include(p => p.Category)
@@ -39,17 +40,58 @@ namespace API.Repository.Implement
 
             return new
             {
-                laptop,
-                tablet
+                Laptops = laptopProducts,
+                Tablets = tabletProducts
             };
         }
 
 
         public async Task<Product?> GetProductById(int id)
         {
-            return await _storeContext.Products.FirstOrDefaultAsync(x => x.Id == id);
+            return await _storeContext.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Inventory)
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<dynamic> SearchAsync(string nameQuery, int pageNumber, int pageSize)
+        {
+            var products = _storeContext.Products.AsQueryable();
+
+            // filtering
+            if (!string.IsNullOrWhiteSpace(nameQuery))
+            {
+                products = products.Where(x => x.Name != null && x.Name.Contains(nameQuery));
+            }
+
+            // Pagination
+            var skipResults = (pageNumber - 1) * pageSize;
+
+            var result = await products
+                .Skip(skipResults)
+                .Take(pageSize)
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Inventory)
+                .ToListAsync();
+
+            if (result == null || result.Count == 0)
+            {
+                throw new NotFoundException("No products found");
+            }
+
+            var laptopProducts = result.OfType<Laptop>().ToList();
+            var tabletProducts = result.OfType<Tablet>().ToList();
+
+            return new
+            {
+                Laptops = laptopProducts,
+                Tablets = tabletProducts
+            };
+        }
 
     }
 }

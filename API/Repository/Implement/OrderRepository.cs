@@ -64,8 +64,10 @@ namespace API.Repository.Implement
             {
                 ProductId = ci.ProductId,
                 Quantity = ci.Quantity,
-                Total = ci.Quantity * ci.Product.Price
-
+                Price = ci.Product.Price,
+                Total = ci.Quantity * ci.Product.Price,
+                Name = ci.Product.Name,
+                PictureUrls = ci.Product.PictureUrls.FirstOrDefault()
             }).ToList();
 
             foreach (var detail in order.OrderDetails)

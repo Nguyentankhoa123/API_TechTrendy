@@ -1,9 +1,11 @@
 using API.Data;
 using API.Helpers;
+using API.Hubs;
 using API.Model.Entity;
 using API.Repositories;
 using API.Repository;
 using API.Repository.Implement;
+using API.Services.Common;
 using API.Services.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -59,13 +61,14 @@ builder.Services.AddSwaggerGen(options =>
         $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
 });
 
+builder.Services.AddSignalR();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyCors", build =>
     {
-        build.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
-        build.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
+        build.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+        build.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
     });
 });
 
@@ -152,6 +155,7 @@ builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IRedisRepository, RedisRepository>();
 builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
 
+builder.Services.AddSingleton<SharedDb>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
@@ -160,6 +164,7 @@ builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 
 });
+
 
 var app = builder.Build();
 
@@ -183,5 +188,7 @@ app.UseCors("MyCors");
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/Chat");
 
 app.Run();

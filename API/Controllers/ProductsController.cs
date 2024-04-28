@@ -41,5 +41,12 @@ namespace API.Controllers
             var result = await productRepository.GetProductById(id);
             return Ok(result);
         }
+
+        [HttpGet("search-products")]
+        public async Task<IActionResult> SearchAsync(string nameQuery, int pageNumber = 1, int pageSize = 5)
+        {
+            var result = await productRepository.SearchAsync(nameQuery, pageNumber, pageSize);
+            return Ok(result);
+        }
     }
 }

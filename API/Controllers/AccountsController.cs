@@ -131,7 +131,7 @@ namespace API.Controllers
                 if (user != null && user.Email != null)
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    var forgotPassword = Url.Action(nameof(ResetPassword), "Accounts", new { token, email = user.Email }, Request.Scheme);
+                    var forgotPassword = $"http://localhost:5173/resetpassword?email={email}&token={token}";
                     if (forgotPassword != null)
                     {
                         var template = Template.Parse(@"
@@ -287,6 +287,14 @@ namespace API.Controllers
             }
         }
 
+
+        [HttpGet("reset-password")]
+        public async Task<IActionResult> ResetPassword(string token, string email)
+        {
+            var result = new ResetPassword { Token = token, Email = email };
+            return Ok(result);
+        }
+
         /// <summary>
         /// Reset password
         /// </summary>
@@ -302,11 +310,8 @@ namespace API.Controllers
                 var resetPassResult = await _userManager.ResetPasswordAsync(user, resetPassword.Token, resetPassword.Password);
                 if (!resetPassResult.Succeeded)
                 {
-                    foreach (var error in resetPassResult.Errors)
-                    {
-                        ModelState.AddModelError(error.Code, error.Description);
-                    }
-                    return Ok(ModelState);
+                    var errors = resetPassResult.Errors.Select(error => new { error.Code, error.Description });
+                    return BadRequest(errors);
                 }
 
                 return Ok("Password has been changed");

@@ -5,25 +5,25 @@
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateProduct : Migration
+    public partial class Update : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
-                name: "CreatedAt",
-                table: "Products",
-                type: "datetime2",
+            migrationBuilder.AddColumn<string>(
+                name: "Name",
+                table: "OrderDetails",
+                type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CreatedAt",
-                table: "Products");
+                name: "Name",
+                table: "OrderDetails");
         }
     }
 }

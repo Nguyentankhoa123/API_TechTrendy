@@ -10,6 +10,7 @@ namespace API.Model.Dtos.TabletDto
         public virtual Category Category { get; set; }
 
         public virtual Brand Brand { get; set; }
+
         public string Name { get; set; }
         public string OS { get; set; }
         public string CPU { get; set; }

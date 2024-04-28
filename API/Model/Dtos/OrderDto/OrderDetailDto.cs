@@ -8,6 +8,8 @@
 
         public double Price { get; set; }
         public int Quantity { get; set; }
+        public string PictureUrls { get; set; }
 
+        public string Name { get; set; }
     }
 }
