@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20240428061925_Init")]
+    [Migration("20240507131450_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -244,6 +244,9 @@ namespace API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsQuestion")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Left")
                         .HasColumnType("int");
 
@@ -443,8 +446,16 @@ namespace API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PictureUrls")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");

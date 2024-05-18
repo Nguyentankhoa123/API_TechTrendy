@@ -241,6 +241,9 @@ namespace API.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsQuestion")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Left")
                         .HasColumnType("int");
 

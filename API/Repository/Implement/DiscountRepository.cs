@@ -65,22 +65,7 @@ namespace API.Repository.Implement
             _storeContext.Discounts.Add(discount);
             await _storeContext.SaveChangesAsync();
 
-            //// Get all users
-            //var users = await _storeContext.Users.ToListAsync();
-
-            //// Create a DiscountUser for each user
-            //foreach (var user in users)
-            //{
-            //    var discountUser = new DiscountUser
-            //    {
-            //        DiscountId = discount.Id,
-            //        UserId = user.Id,
-            //    };
-
-            //    _storeContext.DiscountsUser.Add(discountUser);
-            //}
-
-            //await _storeContext.SaveChangesAsync();
+      
 
             var response = new DiscountObjectResponse
             {

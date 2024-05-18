@@ -186,7 +186,7 @@ namespace API.Repository.Implement
             DateTime localCreatedAt = TimeZoneInfo.ConvertTimeFromUtc(order.CreatedAt, vietnamTimeZone);
 
             var totalPrice = order.TotalPrice.ToString("C", new CultureInfo("vi-VN"));
-
+            var discountPrice = totalDiscountAmount.ToString("C", new CultureInfo("vi-VN"));
             var price = "";
             foreach (var item in order.OrderDetails)
             {
@@ -204,7 +204,7 @@ namespace API.Repository.Implement
                       <p>Xin chào {{user.first_name}} {{user.last_name}}</p>
                       <p>
                         Sản phẩm trong đơn hàng của Anh/chị tại cửa hàng
-                        <strong>ITShopDev</strong>
+                        <strong>Tech Trendy</strong>
                       </p>
                       <div style=""font-size: 18px"">Thông tin giao hàng</div>
                       <table>
@@ -303,6 +303,10 @@ namespace API.Repository.Implement
                                     <td><strong>Phương thức:</strong></td>
                                     <td>{{order.payment_type}}</td>
                                   </tr>
+<tr>
+                                    <td><strong>Tổng giá tiền Voucher giảm giá:</strong></td>
+                                    <td>{{discount_price}}</td>
+                                  </tr>
                                 </tbody>
                               </table>
                               <br />
@@ -370,7 +374,7 @@ namespace API.Repository.Implement
 
             if (response.StatusCode == ResponseCode.OK)
             {
-                var emailContent = await template.RenderAsync(new { user = user, order = order, address = address, total_price = totalPrice, price = price, time = localCreatedAt });
+                var emailContent = await template.RenderAsync(new { user = user, order = order, address = address, total_price = totalPrice, price = price, time = localCreatedAt, discount_price = discountPrice });
                 var message = new Message(new[] { user.Email }, "Order Confirmation", emailContent);
                 _emailSender.SendEmail(message);
             }

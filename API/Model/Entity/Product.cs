@@ -42,7 +42,7 @@ namespace API.Model.Entity
 
         [DisplayName("Cổng kết nối")]
         [Required(ErrorMessage = "Cổng kết nối không được để trống")]
-        public string Ports { get; set; }
+        public List<string> Ports { get; set; }
 
         [DisplayName("Chất liệu")]
         [Required(ErrorMessage = "Chất liệu không được để trống")]

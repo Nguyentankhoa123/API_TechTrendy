@@ -19,7 +19,7 @@ namespace API.Model.Dtos.LaptopDto
         public string RAM { get; set; }
         public string Storage { get; set; }
 
-        public string Ports { get; set; }
+        public List<string> Ports { get; set; }
         public string Design { get; set; }
 
         public string Weight { get; set; }

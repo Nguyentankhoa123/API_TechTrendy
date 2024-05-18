@@ -18,6 +18,19 @@ namespace API.Repository.Implement
             _mapper = mapper;
         }
 
+        public async Task<Product> DeleteProduct(int id)
+        {
+            var product = await _storeContext.Products.FirstOrDefaultAsync(x => x.Id == id);
+            if (product == null)
+            {
+                throw new NotFoundException("Product not found");
+            }
+
+            _storeContext.Products.Remove(product);
+            await _storeContext.SaveChangesAsync();
+
+            return product;
+        }
 
         public async Task<dynamic> GetAllProducts(int pageNumber = 1, int pageSize = 5)
         {

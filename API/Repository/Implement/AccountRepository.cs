@@ -332,6 +332,8 @@ namespace API.Repository.Implement
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.GivenName, user.FirstName),
+                new Claim(ClaimTypes.Surname, user.LastName),
                 new Claim(ClaimTypes.Role, "Customer") // Add "Customer" role claim
             };
 
@@ -386,34 +388,6 @@ namespace API.Repository.Implement
 
             return fbUserData;
 
-            //var appAccessToken = $"{_configuration["Facebook:AppId"]}|{_configuration["Facebook:AppSecret"]}";
-            //var userAccessToken = externalAuth.IdToken;
-            //var validationUri = $"https://graph.facebook.com/debug_token?input_token={userAccessToken}&access_token={appAccessToken}";
-
-            //using var client = new HttpClient();
-            //var validationResponse = await client.GetAsync(validationUri);
-
-            //if (validationResponse.IsSuccessStatusCode)
-            //{
-            //    var validationContent = await validationResponse.Content.ReadAsStringAsync();
-            //    var validationResult = JsonConvert.DeserializeObject<dynamic>(validationContent);
-
-            //    if (validationResult.data.app_id == _configuration["Facebook:AppId"])
-            //    {
-            //        var userUri = $"https://graph.facebook.com/v13.0/me?fields=id,name,email,first_name,last_name&access_token={userAccessToken}";
-            //        var userResponse = await client.GetAsync(userUri);
-
-            //        if (userResponse.IsSuccessStatusCode)
-            //        {
-            //            var userContent = await userResponse.Content.ReadAsStringAsync();
-            //            var fbUserData = JsonConvert.DeserializeObject<FacebookUserData>(userContent);
-
-            //            return fbUserData;
-            //        }
-            //    }
-            //}
-
-            //throw new BadRequestException("Failed to fetch Facebook user data.");
 
         }
 
@@ -442,11 +416,15 @@ namespace API.Repository.Implement
                 user = new ApplicationUser
                 {
                     Email = fbUserData.Email,
-                    UserName = fbUserData.Name,
+                    UserName = fbUserData.Email,
                     FirstName = fbUserData.First_Name,
                     LastName = fbUserData.Last_Name
                 };
-                await _userManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Failed to create user: " + result.Errors.FirstOrDefault()?.Description);
+                }
                 await _userManager.AddToRoleAsync(user, "Customer"); // Add user to "Customer" role
             }
 
@@ -459,6 +437,8 @@ namespace API.Repository.Implement
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.GivenName, user.FirstName),
+                new Claim(ClaimTypes.Surname, user.LastName),
                 new Claim(ClaimTypes.Role, "Customer") // Add "Customer" role claim
             };
 

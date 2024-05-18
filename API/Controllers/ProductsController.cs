@@ -48,5 +48,13 @@ namespace API.Controllers
             var result = await productRepository.SearchAsync(nameQuery, pageNumber, pageSize);
             return Ok(result);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var result = await productRepository.DeleteProduct(id);
+            return Ok(result);
+        }
+
     }
 }

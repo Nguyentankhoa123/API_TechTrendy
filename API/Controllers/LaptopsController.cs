@@ -1,8 +1,10 @@
 ﻿using API.Data;
+using API.Helpers;
 using API.Model.Dtos.LaptopDto;
 using API.Model.Entity;
 using API.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers

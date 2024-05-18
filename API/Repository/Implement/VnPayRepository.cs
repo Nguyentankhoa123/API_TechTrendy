@@ -28,7 +28,7 @@ namespace API.Repository.Implement
             vnpay.AddRequestData("vnp_Locale", _config["VnPay:Locale"]);
             vnpay.AddRequestData("vnp_OrderInfo", "Thanh toán đơn hàng:" + request.OrderId);
             vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ReturnUrl", "https://localhost:5000/api/Order");
+            vnpay.AddRequestData("vnp_ReturnUrl", "http://localhost:5173/returnbill");
             vnpay.AddRequestData("vnp_TxnRef", tick);
 
             var paymentUrl = vnpay.CreateRequestUrl(_config["VnPay:BaseUrl"], _config["VnPay:HashSecret"]);

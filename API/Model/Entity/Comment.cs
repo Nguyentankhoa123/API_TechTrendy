@@ -32,6 +32,9 @@ namespace API.Model.Entity
 
         public bool IsDeleted { get; set; } = false;
 
+        public bool IsQuestion { get; set; } = false;
+
+
         public virtual Product Product { get; set; }
         public virtual ApplicationUser User { get; set; }
     }

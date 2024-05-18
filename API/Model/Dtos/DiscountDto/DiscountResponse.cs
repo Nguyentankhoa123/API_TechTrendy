@@ -38,6 +38,13 @@ namespace API.Model.Dtos.DiscountDto
         public double Percent { get; set; }
         public double? MaxDiscountAmount { get; set; }
         public double? MinOrderValue { get; set; }
+
+        public string Name { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime EndDate { get; set; }
+
     }
 
 

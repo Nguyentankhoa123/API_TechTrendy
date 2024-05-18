@@ -24,6 +24,8 @@ namespace API.Model.Dtos.CommentDto
         public int Right { get; set; }
         public bool IsDeleted { get; set; } = false;
 
+        public bool IsQuestion { get; set; } = false;
+
         [DisplayName("Ngày đánh giá")]
         public DateTime Date { get; set; } = DateTime.Now;
     }

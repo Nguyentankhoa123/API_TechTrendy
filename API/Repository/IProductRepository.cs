@@ -9,5 +9,7 @@ namespace API.Repositories
         Task<Product> GetProductById(int id);
 
         Task<dynamic> SearchAsync(string nameQuery, int pageNumber, int pageSize);
+
+        Task<Product> DeleteProduct(int id);
     }
 }
